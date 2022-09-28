@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-one
+spec:
+  type: NodePort
+  ports:
+    - nodePort: $SENTINEL_REDIS_ONE_SERVICE_PORTS_REDIS_MASTER_NODE_PORT
+      port: $SENTINEL_REDIS_ONE_SERVICE_PORTS_REDIS_MASTER_PORT
+      targetPort: $SENTINEL_REDIS_ONE_SERVICE_PORTS_REDIS_MASTER_TARGET_PORT
+      name: redis-master
+    - nodePort: $SENTINEL_REDIS_ONE_SERVICE_PORTS_REDIS_SENTINEL_NODE_PORT
+      port: $SENTINEL_REDIS_ONE_SERVICE_PORTS_REDIS_SENTINEL_PORT
+      targetPort: $SENTINEL_REDIS_ONE_SERVICE_PORTS_REDIS_SENTINEL_TARGET_PORT
+      name: redis-sentinel
+  selector:
+    app: redis-one

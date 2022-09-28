@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-two
+  labels:
+    app: redis-two
+spec:
+  selector:
+    matchLabels:
+      app: redis-two
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-two
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: $SENTINEL_REDIS_TWO_DEPLOYMENT_NODESELECTOR_KUBERNETES_IO_HOSTNAME
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-persistent-volume-claim
+      containers:
+        - name: replica
+          image: $SENTINEL_REDIS_TWO_DEPLOYMENT_IMAGE
+          resources:
+            requests:
+              cpu: $SENTINEL_REDIS_TWO_DEPLOYMENT_RESOURCES_REQUESTS_CPU
+              memory: $SENTINEL_REDIS_TWO_DEPLOYMENT_RESOURCES_REQUESTS_MEMORY
+          env:
+            - name: REDIS_MASTER_SERVICE_HOST
+              value: !!str $SENTINEL_REDIS_TWO_DEPLOYMENT_ENV_REDIS_MASTER_SERVICE_HOST
+            - name: REDIS_MASTER_SERVICE_PORT
+              value: !!str $SENTINEL_REDIS_TWO_DEPLOYMENT_ENV_REDIS_MASTER_SERVICE_PORT
+            - name: REPLICA_ANNOUNCE_IP
+              value: !!str $SENTINEL_REDIS_TWO_DEPLOYMENT_ENV_REPLICA_ANNOUNCE_IP
+            - name: REPLICA_ANNOUNCE_PORT
+              value: !!str $SENTINEL_REDIS_TWO_DEPLOYMENT_ENV_REPLICA_ANNOUNCE_PORT
+            - name: SENTINEL_ANNOUNCE_PORT
+              value: !!str $SENTINEL_REDIS_TWO_DEPLOYMENT_ENV_SENTINEL_ANNOUNCE_PORT
+            - name: REDIS_MASTER_PASSWORD
+              value: $SENTINEL_REDIS_TWO_DEPLOYMENT_ENV_REDIS_MASTER_PASSWORD
+            - name: MASTER_GROUP_NAME
+              value: "mymaster"
+            - name: REDIS_SENTINEL_QUORUM
+              value: "2"
+            - name: DB_FILENAME
+              value: "dump_two.rdb"
+            - name: DOWN_AFTER_MILLISECONDS
+              value: "10000"
+            - name: FAILOVER_TIMEOUT
+              value: "30000"
+          ports:
+            - containerPort: $SENTINEL_REDIS_TWO_DEPLOYMENT_PORTS_REDIS_REPLICA_CONTAINER_PORT
+              name: redis-replica
+            - containerPort: $SENTINEL_REDIS_TWO_DEPLOYMENT_PORTS_REDIS_SENTINEL_CONTAINER_PORT
+              name: redis-sentinel
+          volumeMounts:
+            - name: redis-storage
+              mountPath: /data

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-four
+spec:
+  type: NodePort
+  ports:
+    - nodePort: $SENTINEL_REDIS_FOUR_SERVICE_PORTS_REDIS_REPLICA_NODE_PORT
+      port: $SENTINEL_REDIS_FOUR_SERVICE_PORTS_REDIS_REPLICA_PORT
+      targetPort: $SENTINEL_REDIS_FOUR_SERVICE_PORTS_REDIS_REPLICA_TARGET_PORT
+      name: redis-replica
+    - nodePort: $SENTINEL_REDIS_FOUR_SERVICE_PORTS_REDIS_SENTINEL_NODE_PORT
+      port: $SENTINEL_REDIS_FOUR_SERVICE_PORTS_REDIS_SENTINEL_PORT
+      targetPort: $SENTINEL_REDIS_FOUR_SERVICE_PORTS_REDIS_SENTINEL_TARGET_PORT
+      name: redis-sentinel
+  selector:
+    app: redis-four
